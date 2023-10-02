@@ -1,0 +1,22 @@
+*noop  [ ] define
+
+*over     [ 1 pick      ] define
+*dup      [ 0 pick      ] define
+*dup2     [ over over   ] define
+*dup3     [ 2 pick dup2 ] define
+
+*true  [ 0 0 is-equal ] define
+*false [ 0 1 is-equal ] define
+*and [ [[true] [false] if] [drop false] if ] define
+*or  [ [drop true] [[true] [false] if]  if ] define
+
+*log [ dup to-text "\n" add print ] define
+
+*is-modulo [ modulo 0 is-equal          ] define
+*print-LF  [ "\n" print                 ] define
+
+*random-between (min max -- n) [
+    over subtract (calculate max minus min)
+    random
+    over add
+] define

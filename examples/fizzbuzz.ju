@@ -1,0 +1,25 @@
+*is-divisible-by-5       [5 is-modulo] define
+*is-divisible-by-3       [3 is-modulo] define
+*is-divisible-by-5-and-3 [dup is-divisible-by-5 over is-divisible-by-3 and] define
+
+[
+1 add
+    dup is-divisible-by-5-and-3
+    [drop "Fizzbuzz " print]
+    [
+        dup is-divisible-by-3
+        [drop "Fizz " print]
+        [
+            dup is-divisible-by-5
+            [drop "Buzz " print]
+            [to-text " " add print]
+            if
+        ]
+        if
+    ]
+    if
+17 is-smaller 
+]
+repeat
+
+print-LF
