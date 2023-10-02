@@ -5,14 +5,14 @@
 [
 1 add
     dup is-divisible-by-5-and-3
-    [drop "Fizzbuzz " print]
+    [drop "Fizzbuzz " write]
     [
         dup is-divisible-by-3
-        [drop "Fizz " print]
+        [drop "Fizz " write]
         [
             dup is-divisible-by-5
-            [drop "Buzz " print]
-            [to-text " " add print]
+            [drop "Buzz " write]
+            [to-text " " add write]
             if
         ]
         if
@@ -22,4 +22,4 @@
 ]
 repeat
 
-print-LF
+write-LF

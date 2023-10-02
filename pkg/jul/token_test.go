@@ -14,9 +14,9 @@ func TestToken(t *testing.T) {
 	}{
 		{
 			desc:  string(TokenTypeQuotation),
-			input: "[dup print]",
+			input: "[dup write]",
 			output: []Token{
-				{Position: Position{Line: 1, Column: 1}, Type: TokenTypeQuotation, Value: "dup print"},
+				{Position: Position{Line: 1, Column: 1}, Type: TokenTypeQuotation, Value: "dup write"},
 				{Position: Position{Line: 1, Column: 12}, Type: TokenTypeEOF},
 			},
 		},

@@ -4,32 +4,32 @@ import (
 	"fmt"
 	"io"
 	"math/rand"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	_ "embed"
+
+	"github.com/ejuju/jus/pkg/jutp"
 )
 
 //go:embed prelude.ju
 var Prelude string
 
 type VM struct {
-	stack          *Stack
-	dictionary     *Dictionary
-	stdin          io.Reader
-	stdout, stderr io.Writer
-	rrand          *rand.Rand
+	stack      *Stack
+	dictionary *Dictionary
+	rrand      *rand.Rand
+	ui         UI
+	client     *jutp.Client
 }
 
 type Option func(vm *VM)
 
 func WithStack(s *Stack) Option           { return func(vm *VM) { vm.stack = s } }
 func WithDictionary(d *Dictionary) Option { return func(vm *VM) { vm.dictionary = d } }
-func WithStdin(stdin io.Reader) Option    { return func(vm *VM) { vm.stdin = stdin } }
-func WithStdout(stdout io.Writer) Option  { return func(vm *VM) { vm.stdout = stdout } }
-func WithStderr(stderr io.Writer) Option  { return func(vm *VM) { vm.stderr = stderr } }
+func WithUI(ui UI) Option                 { return func(vm *VM) { vm.ui = ui } }
+func WithClient(c *jutp.Client) Option    { return func(vm *VM) { vm.client = c } }
 func WithRandomSeed(seed int64) Option {
 	return func(vm *VM) { vm.rrand = rand.New(rand.NewSource(seed)) }
 }
@@ -47,14 +47,8 @@ func NewVM(opts ...Option) *VM {
 	if vm.dictionary == nil {
 		vm.dictionary = NewDictionary()
 	}
-	if vm.stdin == nil {
-		vm.stdin = os.Stdin
-	}
-	if vm.stdout == nil {
-		vm.stdout = os.Stdout
-	}
-	if vm.stderr == nil {
-		vm.stderr = os.Stdin
+	if vm.ui == nil {
+		vm.ui = NewDefaultUI(nil, nil)
 	}
 	if vm.rrand == nil {
 		vm.rrand = rand.New(rand.NewSource(time.Now().UnixNano()))

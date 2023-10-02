@@ -1,9 +1,10 @@
 package jul
 
 import (
-	"bufio"
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type Dictionary struct{ words []*Definition }
@@ -181,29 +182,32 @@ var Builtins = []*Definition{
 		},
 	},
 	{
-		Name: "print",
+		Name: "write",
 		Func: func(vm *VM) error {
 			cellA, err := vm.stack.Pop()
 			if err != nil {
 				return err
 			}
-			_, err = fmt.Fprintf(vm.stdout, "%s", cellA)
-			if err != nil {
-				// TODO: push result onto the stack instead of failing here,
-				// let user handle errors.
-				return fmt.Errorf("write to stdout: %w", err)
+			switch a := (cellA).(type) {
+			case CellText:
+				return vm.ui.Write(string(a))
+			case CellBoolean:
+				return vm.ui.Write(strconv.FormatBool(bool(a)))
+			case CellInteger:
+				return vm.ui.Write(strconv.Itoa(int(a)))
+			case CellFloat:
+				return vm.ui.Write(strconv.FormatFloat(float64(a), 'f', 2, 64))
 			}
-			return nil
+			return newInvalidTypeError(cellA)
 		},
 	},
 	{
-		Name: "ask",
+		Name: "read",
 		Func: func(vm *VM) error {
-			line, err := bufio.NewReader(vm.stdin).ReadBytes('\n')
+			line, err := vm.ui.Read()
 			if err != nil {
 				return err
 			}
-			line = line[:len(line)-1]
 			return vm.stack.Push(CellText(line))
 		},
 	},
@@ -225,6 +229,44 @@ var Builtins = []*Definition{
 			case CellFloat:
 				return vm.stack.Push(CellInteger(vm.rrand.Float64() * float64(a)))
 			}
+		},
+	},
+	{
+		Name: "now",
+		Func: func(vm *VM) error { return vm.stack.Push(CellTime(time.Now())) },
+	},
+	{
+		Name: "wait",
+		Func: func(vm *VM) error {
+			cellA, err := vm.stack.Pop()
+			if err != nil {
+				return err
+			}
+			switch a := cellA.(type) {
+			default:
+				return newInvalidTypeError(a)
+			case CellInteger:
+				time.Sleep(time.Duration(a) * time.Millisecond)
+			case CellFloat:
+				time.Sleep(time.Duration(float64(a) * float64(time.Second)))
+			case CellTime:
+				time.Sleep(time.Until(time.Time(a)))
+			}
+			return nil
+		},
+	},
+	{
+		Name: "send",
+		Func: func(vm *VM) error {
+			cellA, err := vm.stack.Pop()
+			if err != nil {
+				return err
+			}
+			switch a := cellA.(type) {
+			case CellText:
+				return vm.client.Send(string(a))
+			}
+			return newInvalidTypeError(cellA)
 		},
 	},
 }

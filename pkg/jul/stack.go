@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"time"
 )
 
 type Stack struct{ cells []any }
@@ -27,6 +28,7 @@ type (
 	CellFloat     float64
 	CellText      string
 	CellQuotation string
+	CellTime      time.Time
 )
 
 func (s *Stack) Push(c any) error {
@@ -41,7 +43,8 @@ func (s *Stack) Push(c any) error {
 		CellInteger,
 		CellFloat,
 		CellText,
-		CellQuotation:
+		CellQuotation,
+		CellTime:
 	}
 	s.cells = append(s.cells, c)
 	return nil
@@ -153,6 +156,10 @@ func (s *Stack) IsEqual() error {
 		if b, ok := cellB.(CellText); ok {
 			return s.Push(CellBoolean(a == b))
 		}
+	case CellTime:
+		if b, ok := cellB.(CellTime); ok {
+			return s.Push(CellBoolean(time.Time(a).Equal(time.Time(b))))
+		}
 	}
 	return newTypeMismatchError(cellA, cellB)
 }
@@ -181,6 +188,10 @@ func (s *Stack) IsGreater() error {
 		if b, ok := cellB.(CellText); ok {
 			return s.Push(CellBoolean(a > b))
 		}
+	case CellTime:
+		if b, ok := cellB.(CellTime); ok {
+			return s.Push(CellBoolean(time.Time(a).After(time.Time(b))))
+		}
 	}
 	return newTypeMismatchError(cellA, cellB)
 }
@@ -208,6 +219,10 @@ func (s *Stack) IsSmaller() error {
 	case CellText:
 		if b, ok := cellB.(CellText); ok {
 			return s.Push(CellBoolean(a < b))
+		}
+	case CellTime:
+		if b, ok := cellB.(CellTime); ok {
+			return s.Push(CellBoolean(time.Time(a).Before(time.Time(b))))
 		}
 	}
 	return newTypeMismatchError(cellA, cellB)

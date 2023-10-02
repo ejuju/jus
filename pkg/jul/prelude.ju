@@ -10,10 +10,10 @@
 *and [ [[true] [false] if] [drop false] if ] define
 *or  [ [drop true] [[true] [false] if]  if ] define
 
-*log [ dup to-text "\n" add print ] define
+*log [ dup to-text "\n" add write ] define
 
 *is-modulo [ modulo 0 is-equal          ] define
-*print-LF  [ "\n" print                 ] define
+*write-LF  [ "\n" write                 ] define
 
 *random-between (min max -- n) [
     over subtract (calculate max minus min)

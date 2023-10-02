@@ -1,4 +1,4 @@
-*print-help [
+*write-help [
 "
 Welcome to the number guesser game!
 
@@ -9,18 +9,18 @@ Here's the description of the game.
        If you dont find it,
        we give you a hint (bigger/smaller) and you try again.
 " 
-print
+write
 ] define
 
-*ask-number [ "\nGuess a number between 0 and 10: " print ask ] define
+*ask-number [ "\nGuess a number between 0 and 10: " write read ] define
 *are-same-numbers (numA numB -- bool ) [ subtract 0 is-equal ] define
-*print-hint ( got want -- ) [ 
+*write-hint ( got want -- ) [ 
     over to-text rot
     is-greater [" is too high...\n"] [" is too low...\n" ] if
-    add print
+    add write
 ] define
 
-print-help
+write-help
 
 (generate number between 0 and 10)
 11 random
@@ -30,8 +30,8 @@ print-help
     drop dup
     ask-number to-integer dup2
     are-same-numbers dup
-        [ "YES !!!\n" print ]
-        [ rot swap print-hint ]
+        [ "YES !!!\n" write ]
+        [ rot swap write-hint ]
     if
     invert
 ] repeat
