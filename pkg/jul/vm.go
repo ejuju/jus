@@ -3,7 +3,9 @@ package jul
 import (
 	"fmt"
 	"io"
+	"log"
 	"math/rand"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -114,3 +116,23 @@ type RuntimeError struct {
 }
 
 func (err RuntimeError) Error() string { return fmt.Sprintf("\n(at %s) %s", err.Position, err.Cause) }
+
+func RunCLI() {
+	// Start in REPL or file mode
+	from := os.Stdin
+	if len(os.Args) > 1 {
+		var err error
+		from, err = os.Open(os.Args[1])
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer from.Close()
+	}
+
+	// Execute code from stdin or file
+	vm := NewVM()
+	err := vm.Execute(from)
+	if err != nil {
+		log.Println(err)
+	}
+}

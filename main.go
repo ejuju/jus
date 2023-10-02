@@ -1,28 +1,28 @@
 package main
 
 import (
-	"log"
-	"os"
+	"net"
 
 	"github.com/ejuju/jus/pkg/jul"
+	"github.com/ejuju/jus/pkg/jutp"
 )
 
 func main() {
-	// Start in REPL or file mode
-	from := os.Stdin
-	if len(os.Args) > 1 {
-		var err error
-		from, err = os.Open(os.Args[1])
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer from.Close()
+	// Connect to server
+	client, err := jutp.NewClient(nil, &net.TCPAddr{
+		IP:   net.IPv4(127, 0, 0, 1),
+		Port: 8080,
+	})
+	if err != nil {
+		panic(err)
 	}
 
-	// Execute code from stdin or file
-	vm := jul.NewVM()
-	err := vm.Execute(from)
-	if err != nil {
-		log.Println(err)
+	// Execute code received from server
+	for {
+		vm := jul.NewVM(jul.WithClient(client))
+		err := vm.Execute(panic("todo"))
+		if err != nil {
+			panic(err)
+		}
 	}
 }
