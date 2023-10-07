@@ -1,10 +1,13 @@
 package jul
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ejuju/jus/pkg/jutp"
 )
 
 type Dictionary struct{ words []*Definition }
@@ -256,15 +259,19 @@ var Builtins = []*Definition{
 		},
 	},
 	{
-		Name: "send",
+		Name: "retrieve",
 		Func: func(vm *VM) error {
+			if vm.conn == nil {
+				return errors.New("not connected to server")
+			}
 			cellA, err := vm.stack.Pop()
 			if err != nil {
 				return err
 			}
 			switch a := cellA.(type) {
 			case CellText:
-				return vm.client.Send(string(a))
+				_, err = jutp.Write(vm.conn, jutp.Message(a))
+				return err
 			}
 			return newInvalidTypeError(cellA)
 		},

@@ -5,14 +5,13 @@ import (
 	"io"
 	"log"
 	"math/rand"
+	"net"
 	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	_ "embed"
-
-	"github.com/ejuju/jus/pkg/jutp"
 )
 
 //go:embed prelude.ju
@@ -23,15 +22,15 @@ type VM struct {
 	dictionary *Dictionary
 	rrand      *rand.Rand
 	ui         UI
-	client     *jutp.Client
+	conn       *net.TCPConn
 }
 
 type Option func(vm *VM)
 
-func WithStack(s *Stack) Option           { return func(vm *VM) { vm.stack = s } }
-func WithDictionary(d *Dictionary) Option { return func(vm *VM) { vm.dictionary = d } }
-func WithUI(ui UI) Option                 { return func(vm *VM) { vm.ui = ui } }
-func WithClient(c *jutp.Client) Option    { return func(vm *VM) { vm.client = c } }
+func WithStack(s *Stack) Option                  { return func(vm *VM) { vm.stack = s } }
+func WithDictionary(d *Dictionary) Option        { return func(vm *VM) { vm.dictionary = d } }
+func WithUI(ui UI) Option                        { return func(vm *VM) { vm.ui = ui } }
+func WithServerConnection(c *net.TCPConn) Option { return func(vm *VM) { vm.conn = c } }
 func WithRandomSeed(seed int64) Option {
 	return func(vm *VM) { vm.rrand = rand.New(rand.NewSource(seed)) }
 }
